@@ -16,8 +16,7 @@ case "$1" in
   	/bin/chmod u+wx /home/buckutt
 	/usr/sbin/ntpd -ngq &
 	/usr/sbin/ntpd -g
-	/usr/sbin/openvpn --cd /etc/openvpn/ --config 
-/etc/openvpn/buckutt.conf --daemon openvpn@client
+	/usr/sbin/openvpn --cd /etc/openvpn/ --config /etc/openvpn/buckutt.conf --daemon openvpn@client
 	;;
   stop)
 	/bin/kill `pgrep openvpn`

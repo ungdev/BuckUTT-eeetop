@@ -1,1 +1,1 @@
-.profile
+startx

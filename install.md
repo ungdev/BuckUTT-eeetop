@@ -167,7 +167,7 @@ Set les droits
 ```bash
 chown root:root /etc/openvpn/*
 chmod a=,u=r  /etc/openvpn/*
-``
+```
 
 Créer le fichier `/etc/init.d/buckutt` en executant
 ```bash
