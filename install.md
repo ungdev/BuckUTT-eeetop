@@ -68,47 +68,29 @@ Paquets installés
 * plymouth : Splashscreen
 * plymouth-themes-spinner : Theme de splashscreen
 * ifplugd : Configuration auto de la connexion ethernet à chaque fois que le cable est branché
+* git : Syncronisation avec le repo de config
 
 ```bash
 aptitude update
-aptitude install xorg matchbox-window-manager chromium-browser ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd --without-recommends
+aptitude install xorg matchbox-window-manager chromium-browser ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git --without-recommends
+```
+
+
+# Recuperation de la configuration
+
+Executer
+```bash
+git clone [TODO] repo
 ```
 
 # Configuration de l'espace utilisateur
 Le dossier utilisateur est effacé à chaque boot (même à chaques fois que chrome est démarré). Pour cela une version du dossier utilisateur en readonly est placé en `/opt/buckutt`. Donc si une config utilisateur doit être modifié, modifiez dans /opt/buckutt. La copie du dossier utilisateur se passe dans `/opt/buckkutt/.xinitrc`.
 
+Executer
 ```bash
 mkdir /opt/buckutt
-```
-Créer le fichier `/opt/buckutt/.xinitrc` et le remplir par
-
-```bash
-xrandr --newmode "1366x768" 85.25 1368 1440 1576 1784 768 771 781 798 -hsync +vsync
-xrandr --addmode VGA1 1366x768
-xrandr --output VGA1 --mode 1366x768
-
-numlockx &
-xset s off
-xset -dpms
-matchbox-window-manager -use_titlebar no &
-xmodmap -e "pointer = 1 2 99"
-xmodmap -e "keycode 135 = 0x0000" # Disable menu key
-while true; do
-	chromium-browser \
-		--no-first-run \
-		--disable-translate \
-		--disable-infobars \
-		--disable-suggestion-service \
-		--disable-save-password-bubble \
-		--kiosk http://10.10.10.1:8081
-done
-```
-Créer le fichier `/opt/buckutt/.profile` et le remplir par
-```bash
-startx
-```
-Créer ensuite les derniers fichiers et régler les droits
-```bash
+cp repo/config/.xinitrc /opt/buckutt/.xinitrc
+cp repo/config/.profile /opt/buckutt/.profile
 touch /opt/buckutt/.Xauthority
 chown -R root:root /opt/buckutt/
 chmod -R a=r /opt/buckutt/
@@ -116,6 +98,8 @@ chmod a+x /opt/buckutt/.xinitrc
 chmod a+x /opt/buckutt/.profile
 chmod u+w /opt/buckutt/.Xauthority
 ```
+
+
 ## Configuration de l'autologin
 Au démarrage sur `tty1`, buckutt s'autologin et lorsque buckutt se login il lance startx
 
@@ -127,6 +111,7 @@ Et ajouter après la ligne commentée
 ```
 1:2345:respawn:/bin/login -f buckutt tty1 </dev/tty1 >/dev/tty1 2>&1
 ```
+
 Remplacer dans `/etc/X11/xinit/xserverrc` la ligne suivante
 ```
 exec /usr/bin/X -nolisten tcp "$@"
@@ -135,6 +120,8 @@ par
 ```
 exec /usr/bin/X -nolisten tcp "$@" vt1
 ```
+
+
 ## Grub et Splashscreen
 Le menu grub ne doit pas être affiché et un splashcreen est affiché au démarrage
 
@@ -160,33 +147,15 @@ update-grub2
 update-initramfs -u
 ```
 
-# Configuration du vpn
-Buckutt n'est accessible que depuis l'interieur du vpn. Les bornes ayant des problème de pile RTC, il faut faire un ntp avant pour syncroniser l'heure.
 
-Supprimer toute conf par défaut du vpn en executant
+# Configuration du vpn
+Buckutt n'est accessible que depuis l'interieur du vpn. Les bornes ayant des problèmes de pile RTC, il faut faire un ntp avant pour syncroniser l'heure.
+
+Supprimer toute conf par défaut du vpn en executant et installer la conf vpn
 ```bash
 rm /etc/openvpn/*
-```
+cp repo/config/vpn-buckutt.conf /etc/openvpn/buckutt.conf
 
-Créer le ficher `/etc/openvpn/buckutt.conf`
-```bash
-client
-dev tun
-proto tcp
-remote buck.utt.fr 16050
-resolv-retry infinite
-nobind
-group nogroup
-persist-key
-persist-tun
-ca /etc/openvpn/ca.crt
-cert /etc/openvpn/buckutt.crt
-key /etc/openvpn/buckutt.key
-ns-cert-type server
-tls-auth /etc/openvpn/ta.key 1
-comp-lzo
-verb 3
-cipher DES-EDE3-CBC  # Triple-DES
 ```
 
 Ajouter les certificats `ca.crt`, `ta.key`, `buckutt.crt`, `buckutt.key` dans `/etc/openvpn/`. Si vous avez à décompresser un `tar.gz`
@@ -194,57 +163,15 @@ Ajouter les certificats `ca.crt`, `ta.key`, `buckutt.crt`, `buckutt.key` dans `/
 tar -zxvmf file.tar.gz # l'option -m permet d'ignorer le fait que l'eeetop n'est sans doute pas à l'heure
 ```
 
-
 Set les droits
 ```bash
 chown root:root /etc/openvpn/*
 chmod a=,u=r  /etc/openvpn/*
 ``
 
-Créer le fichier `/etc/init.d/buckutt`
+Créer le fichier `/etc/init.d/buckutt` en executant
 ```bash
-#! /bin/sh
-### BEGIN INIT INFO
-# Provides:          buckutt
-# Required-Start:    $remote_fs $syslog
-# Required-Stop:     $remote_fs $syslog
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Init ntp and vpn and session cleaning
-### END INIT INFO
-
-case "$1" in
-  start)
-  	/bin/rm -rf /home/buckutt
-  	/bin/cp -Rf /opt/buckutt /home/
-  	/bin/chown -R buckutt:buckutt /home/buckutt
-  	/bin/chmod u+wx /home/buckutt
-	/usr/sbin/ntpd -ngq &
-	/usr/sbin/ntpd -g
-	/usr/sbin/openvpn --cd /etc/openvpn/ --config /etc/openvpn/buckutt.conf --daemon openvpn@client
-	;;
-  stop)
-	/bin/kill `pgrep openvpn`
-	/bin/kill `pgrep ntpd`
-	;;
-  status)
-	status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
-	;;
-  restart|force-reload)
-	/usr/sbin/service buckutt stop
-	/usr/sbin/service buckutt start
-	;;
-  *)
-	echo "Usage: buckutt {start|stop|status|restart|force-reload}" >&2
-	exit 3
-	;;
-esac
-
-:
-```
-
-Executer ensuite
-```
+cp repo/config/buckutt /etc/init.d/buckutt
 chmod +x /etc/init.d/buckutt
 update-rc.d buckutt defaults 99
 update-rc.d -f openvpn remove
@@ -267,24 +194,11 @@ aptitude update
 aptitude install firmware-ralink
 ```
 
-créer `/etc/wpa_supplicant/wifi.conf`
+créer `/etc/wpa_supplicant/wifi.conf` en executant
 
 ```bash
-ctrl_interface=/var/run/wpa_supplicant
-ap_scan=1
-
-#UTT network
-network={
-        priority=100
-        ssid="UTTetudiants"
-        proto=RSN
-        group=TKIP
-        key_mgmt=WPA-EAP
-        pairwise=CCMP
-        eap=PEAP
-        identity="buckutt"
-        password="[MDP wifi]"
-}
+cp repo/config/wifi.conf /etc/wpa_supplicant/wifi.conf
+nano /etc/wpa_supplicant/wifi.conf # Remplacer le mot de passe au bon endroit
 ```
 
 Executer
@@ -293,85 +207,28 @@ chown root:root /etc/wpa_supplicant/wifi.conf
 chmod a=,u=r /etc/wpa_supplicant/wifi.conf
 ```
 
-Créer le fichier `/etc/init.d/wifi`
+Créer le fichier `/etc/init.d/wifi` en executant
 ```
-#! /bin/sh
-### BEGIN INIT INFO
-# Provides:          wifi
-# Required-Start:    $remote_fs $syslog
-# Required-Stop:     $remote_fs $syslog
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Init wifi
-### END INIT INFO
-
-INTERFACE=wlan0
-
-case "$1" in
-  start)
-	/sbin/wpa_cli terminate -P /var/run/wpa_supplicant-${INTERFACE}.pid
-	/sbin/ip addr flush dev ${INTERFACE}
-	/sbin/wpa_supplicant -B -i ${INTERFACE} -D nl80211 -P /var/run/wpa_supplicant-${INTERFACE}.pid -c /etc/wpa_supplicant/wifi.conf
-	/sbin/dhcpcd wlan0 &
-	;;
-  stop)
-	/sbin/wpa_cli terminate -P /var/run/wpa_supplicant-${INTERFACE}.pid
-	;;
-  restart|force-reload)
-	/usr/sbin/service wifi stop
-	/usr/sbin/service wifi start
-	;;
-  *)
-	echo "Usage: wifi {start|stop|status|restart|force-reload}" >&2
-	exit 3
-	;;
-esac
-
-```
-
-Rendre le service executable
-```
+cp repo/config/wifi /etc/init.d/wifi
 chmod +x /etc/init.d/wifi
 ```
 
 # Creation des scripts
-Creez le fichier /root/wifi-enable-start.sh
+
 ```
-#! /bin/sh
-# Wifi configuration is avaible in /etc/wpa_supplicant/wifi.conf
-update-rc.d wifi defaults 99
-service wifi restart
+cp repo/scripts/* /root/
+chmod +x /root/*.sh
 ```
 
-Creez le fichier /root/wifi-disable-stop.sh
+# Supression du repo
+Après l'install, le repo n'est plus utile
 ```
-#! /bin/sh
-# Wifi configuration is avaible in /etc/wpa_supplicant/wifi.conf
-update-rc.d -f wifi remove
-service wifi stop
-```
-
-Creez le fichier /root/buckutt-restart.sh
-```
-#! /bin/sh
-# Restart ntp and vpn and clean user session
-service buckutt restart
-```
-
-Autorise l'execution
-```
-chmod +x /root/wifi-enable-start.sh
-chmod +x /root/wifi-disable-stop.sh
-chmod +x /root/buckutt-restart.sh
+rm -r repo
+aptitude remove git
 ```
 
 # Desinstallation du ssh
 Si vous avez installez le ssh, executez
-````
-apt-get remove openssh-server
-
-# Liste des eeetop par ref
-1 - EeeTop PC ET1602C - 1366x768 - 1.6GHz Intel Atom N270 - 1GB - 160GB
-2 - EeeTop PC ET1602C - 1366x768 - 1.6GHz Intel Atom N270 - 1GB - 160GB
-4 - EeeTop PC ..	  - 1366x768 - 1.6GHz Intel Atom N270 - 1GB - ?
-6 - EeeTop PC ET1610PT - 1366x768 - 1.66GHz Intel Atom D410 - 1GB - ?
+```
+aptitude remove openssh-server
+```
