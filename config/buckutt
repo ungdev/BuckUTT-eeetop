@@ -1,0 +1,40 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          buckutt
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Init ntp and vpn and session cleaning
+### END INIT INFO
+
+case "$1" in
+  start)
+  	/bin/rm -rf /home/buckutt
+  	/bin/cp -Rf /opt/buckutt /home/
+  	/bin/chown -R buckutt:buckutt /home/buckutt
+  	/bin/chmod u+wx /home/buckutt
+	/usr/sbin/ntpd -ngq &
+	/usr/sbin/ntpd -g
+	/usr/sbin/openvpn --cd /etc/openvpn/ --config 
+/etc/openvpn/buckutt.conf --daemon openvpn@client
+	;;
+  stop)
+	/bin/kill `pgrep openvpn`
+	/bin/kill `pgrep ntpd`
+	;;
+  status)
+	status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
+	;;
+  restart|force-reload)
+	/usr/sbin/service buckutt stop
+	/usr/sbin/service buckutt start
+	;;
+  *)
+	echo "Usage: buckutt {start|stop|status|restart|force-reload}" 
+>&2
+	exit 3
+	;;
+esac
+
+:
