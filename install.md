@@ -19,7 +19,7 @@ On utilise une Debian stable i386 en netinstall (non graphique). L'ethernet doit
  * Charger le microcode manquant depuis un support amovible : Non
 * Configurer le réseau : 
  * Interface réseeau principale : eth0
- * Nom de machine : eeetop[N] (Remplacer [N] par le numéro de l'eeetop marqué dessus au marker)
+ * Nom de machine : eeetop\[N\] (Remplacer \[N\] par le numéro de l'eeetop marqué dessus au marker)
  * Domaine : [Valeur par défaut]
 * Créer les utilisateurs
  * [Mdp root]
