@@ -73,6 +73,7 @@ Paquets installés
 ```bash
 aptitude update
 aptitude install xorg matchbox-window-manager chromium-browser ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git --without-recommends
+aptitude install xorg matchbox-window-manager chromium-browser ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git lcdproc --without-recommends
 ```
 
 
@@ -214,7 +215,10 @@ chmod +x /etc/init.d/wifi
 ```
 
 # Creation des scripts
+# Configuration des Pertelian
 
+```bash
+cp ./repo/config/LCDd.conf /etc/LCDd.conf
 ```
 cp repo/scripts/* /root/
 chmod +x /root/*.sh
