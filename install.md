@@ -1,23 +1,25 @@
 Tutoriel d'installation des bornes buckutt
 ==========================================
-Les bornes buckutt ont une architecture assez proche entre-elles, mais manifestement pas suffisament car une image system a tendance à avoir des incompatibiltés  selon la machine. De plus l'image système est plus difficile à mettre à jour. Un script d'installation est aussi difficile à maintenir car en cas d'erreur, le script srarrète et il est difficile de reprendre au milieu.
 
-C'est donc pour cela que le format de tutoriel d'installation a été choisis. Il devra être mis à jour en cas de modification du système pur que si une borne crash, elle soit réinstallable en moins de 2 heures.
+Les bornes BuckUTT ont une architecture assez proche entre elles, mais manifestement pas suffisament car une image système pré-conçue a tendance à avoir des incompatibiltés en fonction la machine.
+De plus l'image système est plus difficile à mettre à jour. Un script d'installation est aussi difficile à maintenir car en cas d'erreur, le script srarrète et il est difficile de reprendre au milieu.
 
-Dernière mise à jour : mars 2015
+C'est ce qui justifie ce document. Il devra être mis à jour en cas de modification du système afin de pouvoir réinstaller des bornes à partir de zéro en moins de 2h.
+
+Dernière mise à jour : avril 2015
 
 # Installation de l'OS
 On utilise une Debian stable i386 en netinstall (non graphique). L'ethernet doit être connecté. Pendant le menu, il y aura plusieurs choix, voici ce qu'il faudra répondre.
 
-* Choix de la langue : 
+* Choix de la langue :
  * French
-* Choix de votre situation géographique : 
+* Choix de votre situation géographique :
  * France
-* Configurer le clavier : 
+* Configurer le clavier :
  * Français
 * Détecter le materiel réseau (N'arrive pas toujours)
  * Charger le microcode manquant depuis un support amovible : Non
-* Configurer le réseau : 
+* Configurer le réseau :
  * Interface réseeau principale : eth0
  * Nom de machine : eeetop\[N\] (Remplacer \[N\] par le numéro de l'eeetop marqué dessus au marker)
  * Domaine : [Valeur par défaut]
@@ -48,46 +50,46 @@ On utilise une Debian stable i386 en netinstall (non graphique). L'ethernet doit
  * Continuer
 
 # SSH ?
-Pour la config, on peut installer ssh (et install multiple via ClusterSSH), mais il fadura le désinstaller à la fin l'installation.
+
+Pour faciliter la configuration, on peut installer ssh (et install multiple via ClusterSSH), mais il fadura le désinstaller à la fin du processus.
 
 ```bash
 aptitude install openssh-server
 
 ```
 # Installation des paquets
-Paquets installés 
+Paquets installés
 
-* xorg : Manager d'affichage
-* matchbox-window-manager : Gestionnaire de fenêtre spécial pour kiosk
-* chromium-brower : Navigateur utilisé pour afficher buckutt
-* ntp : Syncronisation du temps
-* openvpn : Connexion au réseau privé virtuel
-* dhcpcd : Recupération d'IP
-* numlockx : Activation du numlock au démarrage pour les badgeuses
-* wpasupplicant : Gestion du wifi
-* plymouth : Splashscreen
-* plymouth-themes-spinner : Theme de splashscreen
-* ifplugd : Configuration auto de la connexion ethernet à chaque fois que le cable est branché
-* git : Syncronisation avec le repo de config
+* xorg : Manager d'affichage,
+* matchbox-window-manager : Gestionnaire de fenêtre spécial pour kiosk,
+* chromium-brower : Navigateur utilisé pour afficher buckutt,
+* ntp : Syncronisation du temps,
+* openvpn : Connexion au réseau privé virtuel,
+* dhcpcd : Recupération d'IP,
+* numlockx : Activation du numlock au démarrage pour les badgeuses,
+* wpasupplicant : Gestion du wifi,
+* plymouth : Splashscreen,
+* plymouth-themes-spinner : Theme de splashscreen,
+* ifplugd : Configuration auto de la connexion ethernet à chaque fois que le cable est branché,
+* git : Syncronisation avec le repo de config.
 
 ```bash
 aptitude update
-aptitude install xorg matchbox-window-manager chromium-browser ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git --without-recommends
 aptitude install xorg matchbox-window-manager chromium-browser ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git lcdproc --without-recommends
 ```
 
-
 # Recuperation de la configuration
 
-Executer
+Exécuter :
+
 ```bash
 git clone [TODO] repo
 ```
 
 # Configuration de l'espace utilisateur
-Le dossier utilisateur est effacé à chaque boot (même à chaques fois que chrome est démarré). Pour cela une version du dossier utilisateur en readonly est placé en `/opt/buckutt`. Donc si une config utilisateur doit être modifié, modifiez dans /opt/buckutt. La copie du dossier utilisateur se passe dans `/opt/buckkutt/.xinitrc`.
+Le dossier utilisateur est effacé à chaque boot (et même à chaque fois que chrome est démarré). À ces fins, une version du dossier utilisateur en readonly est placé en `/opt/buckutt`. **Si une config utilisateur doit être modifiée, il faut la changer dans /opt/buckutt**. La copie du dossier utilisateur se passe dans `/opt/buckkutt/.xinitrc`.
 
-Executer
+Exécuter :
 ```bash
 mkdir /opt/buckutt
 cp repo/config/.xinitrc /opt/buckutt/.xinitrc
@@ -102,29 +104,32 @@ chmod u+w /opt/buckutt/.Xauthority
 
 
 ## Configuration de l'autologin
-Au démarrage sur `tty1`, buckutt s'autologin et lorsque buckutt se login il lance startx
+Au démarrage sur `tty1`, buckutt s'autologin et lance par conséquent `startx` :
 
 Modifier `/etc/inittab` et commenter cette ligne dedans :
 ```bash
 1:2345:respawn:/sbin/getty 38400 tty1
 ```
-Et ajouter après la ligne commentée
-```
+Et ajouter après la ligne commentée :
+
+```bash
 1:2345:respawn:/bin/login -f buckutt tty1 </dev/tty1 >/dev/tty1 2>&1
 ```
 
-Remplacer dans `/etc/X11/xinit/xserverrc` la ligne suivante
-```
+Remplacer dans `/etc/X11/xinit/xserverrc` la ligne suivante :
+
+```bash
 exec /usr/bin/X -nolisten tcp "$@"
 ```
 par
-```
+
+```bash
 exec /usr/bin/X -nolisten tcp "$@" vt1
 ```
 
 
 ## Grub et Splashscreen
-Le menu grub ne doit pas être affiché et un splashcreen est affiché au démarrage
+Le menu grub ne doit pas être affiché et un splashcreen est affiché au démarrage :
 
 Ajouter à la fin ```/etc/initramfs-tools/modules```
 ```bash
@@ -141,7 +146,7 @@ GRUB_GFXMODE=1024x768
 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
 ```
 
-Executer ensuite les commandes suivantes
+Exécuter ensuite les commandes suivantes :
 ```bash
 plymouth-set-default-theme spinner
 update-grub2
@@ -189,9 +194,10 @@ server pluton.utt.fr
 # Configuration wifi
 installer les firmware en modifiant `/etc/apt/sources.list` et ajouter `non-free` après chaque `main`
 
-Puis executez
-```
-aptitude update 
+Puis exécutez :
+
+```bash
+aptitude update
 aptitude install firmware-ralink
 ```
 
@@ -208,31 +214,36 @@ chown root:root /etc/wpa_supplicant/wifi.conf
 chmod a=,u=r /etc/wpa_supplicant/wifi.conf
 ```
 
-Créer le fichier `/etc/init.d/wifi` en executant
-```
+Créer le fichier `/etc/init.d/wifi` en exécutant
+```bash
 cp repo/config/wifi /etc/init.d/wifi
 chmod +x /etc/init.d/wifi
 ```
 
-# Creation des scripts
 # Configuration des Pertelian
 
 ```bash
 cp ./repo/config/LCDd.conf /etc/LCDd.conf
 ```
+
+# Création des scripts
+
+```bash
 cp repo/scripts/* /root/
 chmod +x /root/*.sh
 ```
 
-# Supression du repo
-Après l'install, le repo n'est plus utile
-```
+# Supression du dépôt
+Après l'installation, le dossier « repo » n'est plus utile.
+
+```bash
 rm -r repo
 aptitude remove git
 ```
 
-# Desinstallation du ssh
-Si vous avez installez le ssh, executez
-```
+# Désinstallation du ssh
+Si vous avez installé le ssh, exécutez
+
+```bash
 aptitude remove openssh-server
 ```
