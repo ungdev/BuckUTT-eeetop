@@ -72,6 +72,7 @@ Paquets installés
 * plymouth-themes-spinner : Theme de splashscreen,
 * ifplugd : Configuration auto de la connexion ethernet à chaque fois que le cable est branché,
 * git : Syncronisation avec le repo de config.
+* lcdproc : Interface avec les écrans pertelian
 
 ```bash
 aptitude update
@@ -83,7 +84,7 @@ aptitude install xorg matchbox-window-manager chromium-browser ntp openvpn dhcpc
 Exécuter :
 
 ```bash
-git clone [TODO] repo
+git clone https://github.com/ungdev/BuckUTT-eeetop repo
 ```
 
 # Configuration de l'espace utilisateur
