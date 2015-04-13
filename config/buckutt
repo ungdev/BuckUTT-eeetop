@@ -16,11 +16,11 @@ case "$1" in
   	/bin/chmod u+wx /home/buckutt
 	/usr/sbin/ntpd -ngq >/dev/null &
 	/usr/sbin/ntpd -g >/dev/null
-	/usr/sbin/openvpn --cd /etc/openvpn/ --config /etc/openvpn/buckutt.conf --daemon openvpn@client
+	/usr/sbin/service openvpn start 
 	/usr/bin/python3.2 /root/pertelian.py 2>&1 >/dev/null &
 	;;
   stop)
-	/usr/bin/pkill openvpn
+	/usr/sbin/service openvpn stop
 	/usr/bin/pkill ntpd
 	/usr/bin/pkill python3.2
 	;;
