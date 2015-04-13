@@ -14,13 +14,15 @@ case "$1" in
   	/bin/cp -Rf /opt/buckutt /home/
   	/bin/chown -R buckutt:buckutt /home/buckutt
   	/bin/chmod u+wx /home/buckutt
-	/usr/sbin/ntpd -ngq &
-	/usr/sbin/ntpd -g
+	/usr/sbin/ntpd -ngq >/dev/null &
+	/usr/sbin/ntpd -g >/dev/null
 	/usr/sbin/openvpn --cd /etc/openvpn/ --config /etc/openvpn/buckutt.conf --daemon openvpn@client
+	/usr/bin/python3.2 /root/pertelians.py 2>&1 >/dev/null &
 	;;
   stop)
-	/bin/kill `pgrep openvpn`
-	/bin/kill `pgrep ntpd`
+	/usr/bin/pkill openvpn
+	/usr/bin/pkill ntpd
+	/usr/bin/pkill python3.2
 	;;
   status)
 	status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
