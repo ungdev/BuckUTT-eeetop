@@ -17,7 +17,7 @@ case "$1" in
 	/usr/sbin/ntpd -ngq >/dev/null &
 	/usr/sbin/ntpd -g >/dev/null
 	/usr/sbin/openvpn --cd /etc/openvpn/ --config /etc/openvpn/buckutt.conf --daemon openvpn@client
-	/usr/bin/python3.2 /root/pertelians.py 2>&1 >/dev/null &
+	/usr/bin/python3.2 /root/pertelian.py 2>&1 >/dev/null &
 	;;
   stop)
 	/usr/bin/pkill openvpn
