@@ -64,11 +64,12 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             deviceId = hostname.readline()
             hostname.close()
             self.send_response(200)
-            self.send_header("Content-type", "text/html")
+            self.send_header("Content-type", "application/json")
             self.send_header("Content-length", len(str(deviceId)))
             self.send_header("Access-Control-Allow-Origin", ALLOWED)
             self.end_headers()
-            self.wfile.write(str(deviceId).encode('ascii'))
+            idStr = deviceId.replace("\n", "")
+            self.wfile.write(str('{"device": "'+idStr+'"}').encode('ascii'))
         elif parsedParams.path == "/update.html":
             try:
                 if 'l1' not in queryParsed:
