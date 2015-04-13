@@ -8,6 +8,7 @@ from threading import Thread
 
 PORT = 8006
 LENGTH = 20
+ALLOWED = "10.8.0.1"
 tn = None
 
 def connect():
@@ -48,10 +49,10 @@ class telnetLogin(Thread):
             time.sleep(60)
 
 class MyHandler(http.server.SimpleHTTPRequestHandler):
-    global tn, threadTelnet
+    global tn
     def do_GET(self):
         global tn
-        print(tn)
+
         # Parse query data & params to find out what was passed
         parsedParams = urllib.parse.urlparse(self.path)
         print(parsedParams)
@@ -65,6 +66,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.send_header("Content-length", len(str(deviceId)))
+            self.send_header("Access-Control-Allow-Origin", ALLOWED)
             self.end_headers()
             self.wfile.write(str(deviceId).encode('ascii'))
         elif parsedParams.path == "/update.html":
