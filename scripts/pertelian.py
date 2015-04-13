@@ -45,7 +45,7 @@ class telnetLogin(Thread):
                     writeLine(tn, 3, 'BuckUTT is coming !')
                 except ConnectionRefusedError:
                     print("Connexion au Pertelian échouée. Nouvel essai dans 60 secondes...")
-            time.sleep(1)
+            time.sleep(60)
 
 class MyHandler(http.server.SimpleHTTPRequestHandler):
     global tn, threadTelnet
