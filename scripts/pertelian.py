@@ -8,7 +8,7 @@ from threading import Thread
 
 PORT = 8006
 LENGTH = 20
-ALLOWED = "10.8.0.1"
+ALLOWED = "http://10.8.0.1:8082"
 tn = None
 
 def connect():
