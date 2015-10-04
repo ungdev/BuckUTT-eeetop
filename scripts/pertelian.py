@@ -63,12 +63,12 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             hostname = open("/etc/hostname", "r")
             deviceId = hostname.readline()
             hostname.close()
+            idStr = deviceId.replace("\n", "")
             self.send_response(200)
             self.send_header("Content-type", "application/json")
-            self.send_header("Content-length", len(str(deviceId)))
+            self.send_header("Content-length", len(str('{"device": "'+idStr+'"}').encode('ascii')))
             self.send_header("Access-Control-Allow-Origin", ALLOWED)
             self.end_headers()
-            idStr = deviceId.replace("\n", "")
             self.wfile.write(str('{"device": "'+idStr+'"}').encode('ascii'))
         elif parsedParams.path == "/update.html":
             try:
