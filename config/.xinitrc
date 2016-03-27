@@ -10,7 +10,7 @@ matchbox-window-manager -use_titlebar no &
 xmodmap -e "pointer = 1 2 99"
 xmodmap -e "keycode 135 = 0x0000" # Disable menu key
 while true; do
-	chromium-browser \
+	chromium \
 		--no-first-run \
 		--disable-translate \
 		--disable-infobars \

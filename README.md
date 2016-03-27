@@ -6,10 +6,10 @@ De plus l'image système est plus difficile à mettre à jour. Un script d'insta
 
 C'est ce qui justifie ce document. Il devra être mis à jour en cas de modification du système afin de pouvoir réinstaller des bornes à partir de zéro en moins de 2h.
 
-Dernière mise à jour : avril 2015
+Dernière mise à jour : mars 2016
 
 # Installation de l'OS
-On utilise une Debian stable i386 en netinstall (non graphique). L'ethernet doit être connecté. Pendant le menu, il y aura plusieurs choix, voici ce qu'il faudra répondre.
+On utilise une Debian 8 stable i386 en netinstall (non graphique). L'ethernet doit être connecté. Pendant le menu, il y aura plusieurs choix, voici ce qu'il faudra répondre.
 
 * Choix de la langue :
  * French
@@ -51,7 +51,7 @@ On utilise une Debian stable i386 en netinstall (non graphique). L'ethernet doit
 
 # SSH ?
 
-Pour faciliter la configuration, on peut installer ssh (et install multiple via ClusterSSH), mais il fadura le désinstaller à la fin du processus.
+Pour faciliter la configuration, on peut installer ssh (et install multiple via ClusterSSH), mais il faudra le désinstaller à la fin du processus.
 
 ```bash
 aptitude install openssh-server
@@ -62,7 +62,7 @@ Paquets installés
 
 * xorg : Manager d'affichage,
 * matchbox-window-manager : Gestionnaire de fenêtre spécial pour kiosk,
-* chromium-brower : Navigateur utilisé pour afficher buckutt,
+* chromium : Navigateur utilisé pour afficher buckutt,
 * ntp : Syncronisation du temps,
 * openvpn : Connexion au réseau privé virtuel,
 * dhcpcd : Recupération d'IP,
@@ -76,7 +76,7 @@ Paquets installés
 
 ```bash
 aptitude update
-aptitude install xorg matchbox-window-manager chromium-browser ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git lcdproc --without-recommends
+aptitude install xorg matchbox-window-manager chromium ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git lcdproc --without-recommends
 ```
 
 # Recuperation de la configuration
@@ -94,40 +94,49 @@ Exécuter :
 ```bash
 mkdir /opt/buckutt
 cp repo/config/.xinitrc /opt/buckutt/.xinitrc
-cp repo/config/.profile /opt/buckutt/.profile
-touch /opt/buckutt/.Xauthority
 chown -R root:root /opt/buckutt/
 chmod -R a=r /opt/buckutt/
 chmod a+x /opt/buckutt/.xinitrc
-chmod a+x /opt/buckutt/.profile
-chmod u+w /opt/buckutt/.Xauthority
 ```
 
+## Configuration du script de nettoyage du dossier utilisateur
+Créer `/etc/systemd/system/buckutt.service` et ajouter ces lignes:
+```bash
+[Unit]
+Description=Clean buckutt directory
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/rm -rf /home/buckutt
+ExecStart=/bin/cp -Rf /opt/buckutt /home/
+ExecStart=/bin/chown -R buckutt:buckutt /home/buckutt
+ExecStart=/bin/chmod u+wx /home/buckutt
+
+[Install]
+WantedBy=multi-user.target
+
+```
 
 ## Configuration de l'autologin
-Au démarrage sur `tty1`, buckutt s'autologin et lance par conséquent `startx` :
+Il s'agit de créer un service Systemd qui va s'occuper de lancer le serveur X avec notre utilisateur buckutt.
 
-Modifier `/etc/inittab` et commenter cette ligne dedans :
+Créer `/etc/systemd/system/startx@.service` et ajouter ces lignes:
 ```bash
-1:2345:respawn:/sbin/getty 38400 tty1
+[Unit]
+Description=startx automatique pour l'utilisateur %I
+After=graphical.target systemd-user-sessions.service openvpn@buckutt.service
+
+[Service]
+User=%I
+WorkingDirectory=%h
+PAMName=login
+Type=simple
+ExecStart=/bin/bash -l -c startx
+
+[Install]
+WantedBy=graphical.target
 ```
-Et ajouter après la ligne commentée :
-
-```bash
-1:2345:respawn:/bin/login -f buckutt tty1 </dev/tty1 >/dev/tty1 2>&1
-```
-
-Remplacer dans `/etc/X11/xinit/xserverrc` la ligne suivante :
-
-```bash
-exec /usr/bin/X -nolisten tcp "$@"
-```
-par
-
-```bash
-exec /usr/bin/X -nolisten tcp "$@" vt1
-```
-
 
 ## Grub et Splashscreen
 Le menu grub ne doit pas être affiché et un splashcreen est affiché au démarrage :
@@ -176,13 +185,9 @@ chown root:root /etc/openvpn/*
 chmod a=,u=r  /etc/openvpn/*
 ```
 
-Créer le fichier `/etc/init.d/buckutt` en executant
+Activer le service OpenVPN en executant:
 ```bash
-cp repo/config/buckutt /etc/init.d/buckutt
-chmod +x /etc/init.d/buckutt
-update-rc.d buckutt defaults 99
-update-rc.d -f openvpn remove
-update-rc.d -f ntp remove
+systemctl enable openvpn@buckutt.service
 ```
 
 # Configuration de ntp
@@ -192,7 +197,7 @@ server buck.utt.fr
 server pluton.utt.fr
 ```
 
-# Configuration wifi
+# Configuration wifi (déprécié)
 installer les firmware en modifiant `/etc/apt/sources.list` et ajouter `non-free` après chaque `main`
 
 Puis exécutez :
