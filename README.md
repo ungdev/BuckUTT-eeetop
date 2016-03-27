@@ -108,6 +108,16 @@ systemctl enable pertelian.service
 systemctl enable startx@buckutt.service
 ```
 
+## Autoriser l'utilisateur buckutt à lancer le serveur X
+Editer `/etc/X11/Xwrapper.config` et remplacer :
+```bash
+allowed_users=console
+```
+Par :
+```bash
+allowed_users=anybody
+```
+
 ## Grub et Splashscreen
 Le menu grub ne doit pas être affiché et un splashcreen est affiché au démarrage :
 
