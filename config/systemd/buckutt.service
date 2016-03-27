@@ -1,0 +1,13 @@
+[Unit]
+Description=Clean buckutt directory
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/rm -rf /home/buckutt
+ExecStart=/bin/cp -Rf /opt/buckutt /home/
+ExecStart=/bin/chown -R buckutt:buckutt /home/buckutt
+ExecStart=/bin/chmod u+wx /home/buckutt
+
+[Install]
+WantedBy=multi-user.target

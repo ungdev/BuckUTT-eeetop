@@ -1,0 +1,10 @@
+[Unit]
+Description=Launch pertelian's script for BuckUTT
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3.4 /root/pertelian.py
+
+[Install]
+WantedBy=multi-user.target
+```

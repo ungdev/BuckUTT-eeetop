@@ -76,7 +76,7 @@ Paquets installés
 
 ```bash
 aptitude update
-aptitude install xorg matchbox-window-manager chromium ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git lcdproc --without-recommends
+aptitude install xorg matchbox-window-manager chromium ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git lcdproc python3 --without-recommends
 ```
 
 # Recuperation de la configuration
@@ -99,52 +99,12 @@ chmod -R a=r /opt/buckutt/
 chmod a+x /opt/buckutt/.xinitrc
 ```
 
-## Configuration du script de nettoyage du dossier utilisateur
-Créer `/etc/systemd/system/buckutt.service` et ajouter ces lignes:
+## Copie des services (espace utilisateur, serveur local et Autologin+startx) et initialisation
+Exécuter :
 ```bash
-[Unit]
-Description=Clean buckutt directory
-After=network.target
-
-[Service]
-Type=oneshot
-ExecStart=/bin/rm -rf /home/buckutt
-ExecStart=/bin/cp -Rf /opt/buckutt /home/
-ExecStart=/bin/chown -R buckutt:buckutt /home/buckutt
-ExecStart=/bin/chmod u+wx /home/buckutt
-
-[Install]
-WantedBy=multi-user.target
-
-```
-
-Puis activer le service au démarrage :
-```bash
+cp repo/config/systemd/* /etc/systemd/system/
 systemctl enable buckutt.service
-```
-
-## Configuration de l'autologin
-Il s'agit de créer un service Systemd qui va s'occuper de lancer le serveur X avec notre utilisateur buckutt.
-
-Créer `/etc/systemd/system/startx@.service` et ajouter ces lignes:
-```bash
-[Unit]
-Description=startx automatique pour l'utilisateur %I
-After=graphical.target systemd-user-sessions.service openvpn@buckutt.service
-
-[Service]
-User=%I
-WorkingDirectory=%h
-PAMName=login
-Type=simple
-ExecStart=/bin/bash -l -c startx
-
-[Install]
-WantedBy=graphical.target
-```
-
-Puis activer le service au démarrage :
-```bash
+systemctl enable pertelian.service
 systemctl enable startx@buckutt.service
 ```
 
