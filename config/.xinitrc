@@ -16,5 +16,5 @@ while true; do
 		--disable-infobars \
 		--disable-suggestion-service \
 		--disable-save-password-bubble \
-		--kiosk http://10.10.10.1:8081
+		--kiosk http://10.0.0.1
 done
