@@ -118,6 +118,11 @@ WantedBy=multi-user.target
 
 ```
 
+Puis activer le service au démarrage :
+```bash
+systemctl enable buckutt.service
+```
+
 ## Configuration de l'autologin
 Il s'agit de créer un service Systemd qui va s'occuper de lancer le serveur X avec notre utilisateur buckutt.
 
@@ -136,6 +141,11 @@ ExecStart=/bin/bash -l -c startx
 
 [Install]
 WantedBy=graphical.target
+```
+
+Puis activer le service au démarrage :
+```bash
+systemctl enable startx@buckutt.service
 ```
 
 ## Grub et Splashscreen
