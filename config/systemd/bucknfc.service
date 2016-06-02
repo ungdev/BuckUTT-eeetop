@@ -1,11 +1,11 @@
 [Unit]
-Description=Launch pertelian's script for BuckUTT
+Description=Launch local script for BuckUTT
 After=network.target
 
 [Service]
 Type=simple
 Restart=always
-ExecStart=/usr/bin/python3.4 /root/pertelian.py
+ExecStart=/usr/bin/node /root/local/app.js
 
 [Install]
 WantedBy=multi-user.target

@@ -6,7 +6,7 @@ De plus l'image système est plus difficile à mettre à jour. Un script d'insta
 
 C'est ce qui justifie ce document. Il devra être mis à jour en cas de modification du système afin de pouvoir réinstaller des bornes à partir de zéro en moins de 2h.
 
-Dernière mise à jour : mars 2016
+Dernière mise à jour : juin 2016 (ne prends plus la gestion des Pertelian en compte)
 
 # Installation de l'OS
 On utilise une Debian 8 stable i386 en netinstall (non graphique). L'ethernet doit être connecté. Pendant le menu, il y aura plusieurs choix, voici ce qu'il faudra répondre.
@@ -77,8 +77,9 @@ Paquets installés
 * nodejs : NodeJS pour le serveur local
 
 ```bash
-curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 aptitude update
+aptitude install curl
+curl -sL https://deb.nodesource.com/setup_6.x |bash -
 aptitude install xorg matchbox-window-manager chromium ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git lcdproc python3 libpcsclite1 libpcsclite-dev pcscd ccid nodejs --without-recommends
 ```
 
@@ -87,7 +88,7 @@ aptitude install xorg matchbox-window-manager chromium ntp openvpn dhcpcd numloc
 Exécuter :
 
 ```bash
-git clone https://github.com/ungdev/BuckUTT-eeetop repo
+git clone https://github.com/buckutt/BuckUTT-eeetop repo
 ```
 
 # Configuration de l'espace utilisateur
@@ -107,7 +108,7 @@ Exécuter :
 ```bash
 cp repo/config/systemd/* /etc/systemd/system/
 systemctl enable buckutt.service
-systemctl enable pertelian.service
+systemctl enable bucknfc.service
 systemctl enable startx@buckutt.service
 ```
 
