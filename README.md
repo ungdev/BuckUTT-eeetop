@@ -78,9 +78,9 @@ Paquets installés
 
 ```bash
 aptitude update
-aptitude install curl
+aptitude install xorg matchbox-window-manager chromium ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git lcdproc python3 libpcsclite1 libpcsclite-dev pcscd make curl build-essential --without-recommends
 curl -sL https://deb.nodesource.com/setup_6.x |bash -
-aptitude install xorg matchbox-window-manager chromium ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git lcdproc python3 libpcsclite1 libpcsclite-dev pcscd ccid nodejs --without-recommends
+aptitude install nodejs
 ```
 
 # Recuperation de la configuration
@@ -174,6 +174,11 @@ Activer le service OpenVPN en executant:
 systemctl enable openvpn@buckutt.service
 ```
 
+Activer le service PCSCd en executant:
+```bash
+systemctl enable pcscd.service
+```
+
 # Configuration de ntp
 Modifier `/etc/ntp.conf` et ajouter au dessus du bloc de la liste des serveurs
 ```bash
@@ -228,6 +233,7 @@ chmod +x /root/*.sh
 ```bash
 cd /root/local
 npm install
+cd /root
 ```
 
 # Supression du dépôt
