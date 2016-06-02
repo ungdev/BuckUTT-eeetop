@@ -73,10 +73,13 @@ Paquets installés
 * ifplugd : Configuration auto de la connexion ethernet à chaque fois que le cable est branché,
 * git : Syncronisation avec le repo de config.
 * lcdproc : Interface avec les écrans pertelian
+* libpcsclite1, libpcsclite-dev, pcscd, ccid : Gestion des badgeuses NFC
+* nodejs : NodeJS pour le serveur local
 
 ```bash
+curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 aptitude update
-aptitude install xorg matchbox-window-manager chromium ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git lcdproc python3 --without-recommends
+aptitude install xorg matchbox-window-manager chromium ntp openvpn dhcpcd numlockx wpasupplicant plymouth plymouth-themes-spinner ifplugd git lcdproc python3 libpcsclite1 libpcsclite-dev pcscd ccid nodejs --without-recommends
 ```
 
 # Recuperation de la configuration
@@ -217,6 +220,13 @@ cp ./repo/config/LCDd.conf /etc/LCDd.conf
 ```bash
 cp repo/scripts/* /root/
 chmod +x /root/*.sh
+```
+
+# Installation des dépendances pour le script local
+
+```bash
+cd /root/local
+npm install
 ```
 
 # Supression du dépôt
