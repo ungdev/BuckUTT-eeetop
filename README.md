@@ -174,7 +174,7 @@ Activer le service OpenVPN en executant:
 systemctl enable openvpn@buckutt.service
 ```
 
-Activer le service PCSCd en executant:
+# Activer PCSCd au démarrage:
 ```bash
 systemctl enable pcscd.service
 ```
@@ -233,13 +233,15 @@ chmod +x /root/*.sh
 ```bash
 cd /root/local
 npm install
-cd /root
 ```
+
+Puis renommer `config.json.example` en `config.json` et éditer la configuration
 
 # Supression du dépôt
 Après l'installation, le dossier « repo » n'est plus utile.
 
 ```bash
+cd /root
 rm -r repo
 aptitude remove git
 ```

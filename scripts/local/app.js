@@ -56,12 +56,18 @@ pcsc.on('reader', function(reader) {
                         console.log(err);
                     } else {
                         console.log('Protocol(', reader.name, '):', protocol);
-                        reader.transmit(new Buffer(config.etuId), 40, protocol, function(err, data) {
+                        reader.transmit(new Buffer(config.key), 40, protocol, function(err, data) {
                             if (err) {
                                 console.log(err);
                             } else {
-                                console.log('Data received', data.toString().replace(/\D+/g,''));
-                                io.emit('card', data.toString().replace(/\D+/g,''));
+                                reader.transmit(new Buffer(config.etuId), 40, protocol, function(err, data) {
+                                    if (err) {
+                                        console.log(err);
+                                    } else {
+                                        console.log('Data received', data.toString().replace(/\D+/g,''));
+                                        io.emit('card', data.toString().replace(/\D+/g,''));
+                                    }
+                                });
                             }
                         });
                     }
