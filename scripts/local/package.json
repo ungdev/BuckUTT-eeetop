@@ -5,6 +5,7 @@
   "dependencies": {
     "express": "^4.13.4",
     "pcsclite": "^0.4.9",
-    "socket.io": "^1.4.6"
+    "socket.io": "^1.4.6",
+    "async": "^2.0.1"
   }
 }
